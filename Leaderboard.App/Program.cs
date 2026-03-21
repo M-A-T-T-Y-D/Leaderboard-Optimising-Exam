@@ -12,7 +12,7 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        NaivePlayerCollection playerCollection = new NaivePlayerCollection();
+        IPlayerCollection playerCollection = new TreePlayerCollection();
         LeaderboardService service = new LeaderboardService(playerCollection);
 
         Console.WriteLine("Leaderboard app (starter)");
