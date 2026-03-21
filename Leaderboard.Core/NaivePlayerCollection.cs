@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
 namespace Leaderboard.Core;
 
@@ -12,11 +12,11 @@ namespace Leaderboard.Core;
 /// </summary>
 public sealed class NaivePlayerCollection : IPlayerCollection
 {
-    private readonly List<Player> _players;
+    private readonly Dictionary<string, Player> _players;
 
     public NaivePlayerCollection()
     {
-        _players = new List<Player>();
+        _players = new Dictionary<string, Player>(StringComparer.OrdinalIgnoreCase);
     }
 
     public int Count
@@ -31,16 +31,11 @@ public sealed class NaivePlayerCollection : IPlayerCollection
             throw new ArgumentNullException(nameof(player));
         }
 
-        // Duplicate check (slow): scan every existing player.
-        for (int i = 0; i < _players.Count; i++)
+        // changed to be faster 0(1) instead of 0(n) by using a dictionary instead of a list
+        if (!_players.TryAdd(player.Id, player))
         {
-            if (string.Equals(_players[i].Id, player.Id, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new DuplicatePlayerIdException(player.Id);
-            }
+            throw new DuplicatePlayerIdException(player.Id);
         }
-
-        _players.Add(player);
     }
 
     public bool TryGetById(string playerId, out Player player)
@@ -51,23 +46,13 @@ public sealed class NaivePlayerCollection : IPlayerCollection
         }
 
         // Lookup (slow): scan every existing player.
-        for (int i = 0; i < _players.Count; i++)
-        {
-            if (string.Equals(_players[i].Id, playerId, StringComparison.OrdinalIgnoreCase))
-            {
-                player = _players[i];
-                return true;
-            }
-        }
-
-        player = null;
-        return false;
+        return _players.TryGetValue(playerId, out player);
     }
 
     public IEnumerable<Player> GetAll()
     {
         // Return a read-only shallow copy of the player list.
-        return new ReadOnlyCollection<Player>(new List<Player>(_players));
+        return new ReadOnlyCollection<Player>(new List<Player>(_players.Values));
     }
 
     public void ReplaceAll(IEnumerable<Player> players)
@@ -80,7 +65,7 @@ public sealed class NaivePlayerCollection : IPlayerCollection
         _players.Clear();
         foreach (Player p in players)
         {
-            _players.Add(p);
+            _players[p.Id] = p;
         }
     }
 }
