@@ -50,6 +50,7 @@ public sealed class LeaderboardService
     {
         Player p = GetPlayerOrThrow(id);
         p.AddScore(delta);
+        _players.UpdatePlayerRank(p);
     }
 
     public List<Player> GetTopK(int k)

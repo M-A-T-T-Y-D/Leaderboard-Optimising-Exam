@@ -68,4 +68,8 @@ public sealed class NaivePlayerCollection : IPlayerCollection
             _players[p.Id] = p;
         }
     }
+
+    public void UpdatePlayerRank(Player player)
+    {
+    }
 }

@@ -27,4 +27,6 @@ public interface IPlayerCollection
     /// Replaces everything in the collection with the provided players.
     /// </summary>
     void ReplaceAll(IEnumerable<Player> players);
+
+    void UpdatePlayerRank(Player player);
 }
